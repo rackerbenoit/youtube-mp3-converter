@@ -170,10 +170,6 @@ brew install ffmpeg
 - Some videos may be age-restricted or region-locked
 - Try updating yt-dlp: `pip3 install --break-system-packages --upgrade yt-dlp`
 
-### GUI Version Issues
-
-A GUI version exists in `youtube_mp3_app.py` but requires tkinter setup. If you see tkinter errors, use the CLI version instead (`youtube_mp3_cli.py`).
-
 ---
 
 ## Legal Notice
@@ -186,8 +182,7 @@ This tool is for personal use only. Respect copyright laws and YouTube's Terms o
 
 ```
 youtube-mp3-converter/
-├── youtube_mp3_cli.py      # Command-line version (recommended)
-├── youtube_mp3_app.py      # GUI version (requires tkinter)
+├── youtube_mp3_cli.py      # Main application
 ├── requirements.txt        # Python dependencies
 └── README.md              # This file
 ```
