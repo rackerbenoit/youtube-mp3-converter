@@ -13,7 +13,7 @@ A simple command-line tool that downloads audio from YouTube and YouTube Music a
 
 ## Quick Start
 
-For experienced users who already have Homebrew, Python 3.8+, and FFmpeg installed:
+For experienced users who already have Homebrew, Python 3.8+, FFmpeg, and Node.js installed:
 
 ```bash
 cd youtube-mp3-converter
@@ -46,16 +46,17 @@ Close and reopen Terminal, then verify:
 brew --version
 ```
 
-### 2. Install Python 3 and FFmpeg
+### 2. Install Required Tools
 
 ```bash
-brew install python3 ffmpeg
+brew install python3 ffmpeg node
 ```
 
-Verify Python 3.8 or higher is installed:
+Verify installations:
 
 ```bash
-python3 --version
+python3 --version  # Should be 3.8 or higher
+node --version     # Should be v14 or higher
 ```
 
 ### 3. Install Python Dependencies
@@ -164,11 +165,18 @@ pip3 install --break-system-packages yt-dlp
 brew install ffmpeg
 ```
 
+**"Node.js runtime not found" or "n challenge solving failed"**
+```bash
+brew install node
+```
+Node.js is required to bypass YouTube's anti-bot protections.
+
 **Download fails or video unavailable**
 - Verify the URL is correct
 - Check your internet connection
 - Some videos may be age-restricted or region-locked
 - Try updating yt-dlp: `pip3 install --break-system-packages --upgrade yt-dlp`
+- Ensure Node.js is installed: `node --version`
 
 ---
 
