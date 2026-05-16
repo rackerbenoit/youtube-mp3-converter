@@ -4,42 +4,76 @@ YouTube to MP3 Converter - Command Line Version
 Downloads audio from YouTube/YouTube Music and converts to MP3
 """
 
-import yt_dlp
 import os
 import sys
+import subprocess
 from pathlib import Path
 
 
 def download_audio(url, output_path):
-    """Download and convert YouTube audio to MP3"""
+    """Download and convert YouTube audio to MP3 using yt-dlp CLI"""
 
-    # yt-dlp options
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'outtmpl': os.path.join(output_path, '%(title)s.%(ext)s'),
-        'quiet': False,
-        'no_warnings': False,
-    }
+    # Find Node.js executable
+    node_executable = None
+
+    # First, try to find node in PATH using 'which'
+    try:
+        result = subprocess.run(['which', 'node'], capture_output=True, text=True, check=True)
+        node_path = result.stdout.strip()
+        if node_path and os.path.isfile(node_path):
+            node_executable = node_path
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    # If not found in PATH, check common installation locations
+    if not node_executable:
+        common_paths = [
+            '/usr/local/bin/node',
+            '/opt/homebrew/bin/node',
+            os.path.expanduser('~/.nvm/current/bin/node'),
+        ]
+        for node_path in common_paths:
+            if os.path.isfile(node_path):
+                node_executable = node_path
+                break
+
+    print(f"\nDownloading from: {url}")
+    print(f"Saving to: {output_path}\n")
+
+    # Build yt-dlp command using Android client (most reliable)
+    cmd = [
+        'yt-dlp',
+        '--format', 'bestaudio[ext=m4a]/bestaudio/best',
+        '--extract-audio',
+        '--audio-format', 'mp3',
+        '--audio-quality', '192K',
+        '--output', os.path.join(output_path, '%(title)s.%(ext)s'),
+        '--no-check-certificate',
+        '--no-write-thumbnail',
+        '--remote-components', 'ejs:github',
+        '--extractor-args', 'youtube:player_client=android,web',
+    ]
+
+    # Add Node.js runtime if found
+    if node_executable:
+        cmd.extend(['--js-runtimes', f'node:{node_executable}'])
+        print(f"Using Node.js runtime: {node_executable}\n")
+
+    cmd.append(url)
 
     try:
-        print(f"\nDownloading from: {url}")
-        print(f"Saving to: {output_path}\n")
+        # Run yt-dlp command
+        result = subprocess.run(cmd, check=True, capture_output=False, text=True)
 
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            title = info.get('title', 'Unknown')
-
-        print(f"\n✓ Successfully downloaded and converted: {title}")
+        print(f"\n✓ Successfully downloaded and converted")
         print(f"✓ Saved to: {output_path}\n")
         return True
 
-    except Exception as e:
-        print(f"\n✗ Error: {str(e)}\n")
+    except subprocess.CalledProcessError as e:
+        print(f"\n✗ Download failed\n")
+        return False
+    except FileNotFoundError:
+        print("\n✗ Error: yt-dlp not found. Please install it with: pip install yt-dlp\n")
         return False
 
 
